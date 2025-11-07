@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика контента Netflix</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    {% macro macros_table(title, headers, data) %}
+    <section class="content-section">
+        <h2>{{ title }}</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        {% for header in headers %}
+                        <th>{{ header }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        {% for item in row %}
+                        <td>
+                            {% if item is float %}
+                                {{ "%.2f"|format(item) }}
+                            {% else %}
+                                {{ item }}
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endmacro %}
+
+    {% macro macros_accordion(title, data) %}
+    <section class="accordion-section">
+        <div class="accordion-header">
+            <span class="accordion-title">{{ title }}</span>
+            <span class="accordion-icon">+</span>
+        </div>
+        <div class="accordion-content">
+            <ul>
+                {% for item in data %}
+                <li>
+                    {{ item.name }}
+                    {% if item.duration_seasons %}
+                        ({{ item.duration_seasons|format_seasons }})
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+    {% endmacro %}
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1>Статистика контента Netflix</h1>
+            <p class="subtitle">Анализ фильмов и сериалов на платформе</p>
+        </header>
+
+        <main class="content">
+            {{ macros_table("10 новейших релизов", query1[0], query1[1]) }}
+            {{ macros_table("Топ-5 стран по количеству контента", query2[0], query2[1]) }}
+            {{ macros_table("Распределение контента по рейтингам", query3[0], query3[1]) }}
+            {{ macros_table("Количество контента по годам", query4[0], query4[1]) }}
+            {{ macros_table("Топ-5 режиссеров с наибольшим количеством контента", query5[0], query5[1]) }}
+
+            <div class="accordions-container">
+                {{ macros_accordion("Все типы контента", content_types) }}
+                {{ macros_accordion("Все страны", countries) }}
+                {{ macros_accordion("Все рейтинги", ratings) }}
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <p>Статистика Netflix Movies and TV Shows &copy;</p>
+        </footer>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+        accordionHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const section = this.parentElement;
+                const content = section.querySelector('.accordion-content');
+                const icon = this.querySelector('.accordion-icon');
+
+                // Toggle accordion state
+                this.classList.toggle('open');
+                content.classList.toggle('open');
+
+                // Change icon
+                icon.textContent = this.classList.contains('open') ? '-' : '+';
+            });
+        });
+    });
+    </script>
+</body>
+</html>
