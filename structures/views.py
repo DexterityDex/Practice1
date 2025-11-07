@@ -90,51 +90,41 @@ def index():
     # Запрос 3: Распределение контента по рейтингам
     query3_headers = ["Рейтинг", "Количество", "Год с наибольшим количеством релизов"]
 
-    # Создаем подзапрос для нахождения года с наибольшим количеством релизов для каждого рейтинга
-    years_subquery = db.session.query(
-        NetflixContent.rating_id,
-        NetflixContent.release_year,
-        func.count(NetflixContent.show_id).label('year_count')
-    ).filter(
-        NetflixContent.release_year.isnot(None)
-    ).group_by(
-        NetflixContent.rating_id,
-        NetflixContent.release_year
-    ).subquery()
+    # Формируем данные для каждого рейтинга
+    query3_data = []
 
-    # Находим максимальное количество релизов для каждого рейтинга
-    max_years_subquery = db.session.query(
-        years_subquery.c.rating_id,
-        func.max(years_subquery.c.year_count).label('max_count')
-    ).group_by(
-        years_subquery.c.rating_id
-    ).subquery()
+    # Получаем все рейтинги
+    ratings = Rating.query.all()
 
-    # Соединяем с основным запросом, чтобы получить год с наибольшим количеством релизов
-    query3_data = db.session.query(
-        Rating.name,
-        func.count(NetflixContent.show_id),
-        func.coalesce(
-            db.session.query(
-                years_subquery.c.release_year
-            ).join(
-                max_years_subquery,
-                db.and_(
-                    years_subquery.c.rating_id == max_years_subquery.c.rating_id,
-                    years_subquery.c.year_count == max_years_subquery.c.max_count
-                )
-            ).filter(
-                years_subquery.c.rating_id == Rating.identifier
-            ).limit(1).scalar(),
-            0
-        ).label('top_year')
-    ).join(
-        NetflixContent, NetflixContent.rating_id == Rating.identifier
-    ).group_by(
-        Rating.name
-    ).order_by(
-        func.count(NetflixContent.show_id).desc()
-    ).all()
+    for rating in ratings:
+        # Считаем общее количество контента для этого рейтинга
+        content_count = db.session.query(func.count(NetflixContent.show_id)).filter(
+            NetflixContent.rating_id == rating.identifier
+        ).scalar() or 0
+
+        # Находим год с наибольшим количеством релизов для этого рейтинга
+        year_counts = db.session.query(
+            NetflixContent.release_year,
+            func.count(NetflixContent.show_id).label('count')
+        ).filter(
+            NetflixContent.rating_id == rating.identifier,
+            NetflixContent.release_year.isnot(None)
+        ).group_by(
+            NetflixContent.release_year
+        ).all()
+
+        if not year_counts:
+            best_year = 0
+        else:
+            # Находим год с максимальным количеством и, при равенстве, берем самый последний
+            max_count = max(year_counts, key=lambda x: x[1])[1]
+            best_years = [y for y, c in year_counts if c == max_count]
+            best_year = max(best_years) if best_years else 0
+
+        query3_data.append((rating.name, content_count, best_year))
+
+    # Сортируем по убыванию количества контента
+    query3_data.sort(key=lambda x: x[1], reverse=True)
 
     # Запрос 4: Количество добавлений по годам
     query4_headers = ["Год добавления", "Фильмов", "Сериалов", "Всего"]

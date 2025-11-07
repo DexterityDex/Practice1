@@ -48,9 +48,15 @@
             <ul>
                 {% for item in data %}
                 <li>
-                    {{ item.name }}
-                    {% if item.duration_seasons %}
-                        ({{ item.duration_seasons|format_seasons }})
+                    {% if title == "Все страны" and "," in item.name %}
+                        {% for country in item.name.split(',') %}
+                            {{ country.strip() }}{% if not loop.last %}<br>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {{ item.name }}
+                        {% if item.duration_seasons %}
+                            ({{ item.duration_seasons|format_seasons }})
+                        {% endif %}
                     {% endif %}
                 </li>
                 {% endfor %}
@@ -75,13 +81,13 @@
 
             <div class="accordions-container">
                 {{ macros_accordion("Все типы контента", content_types) }}
-                {{ macros_accordion("Все страны", countries) }}
+                {{ macros_accordion("Все страны производства", countries) }}
                 {{ macros_accordion("Все рейтинги", ratings) }}
             </div>
         </main>
 
         <footer class="main-footer">
-            <p>Статистика Netflix Movies and TV Shows &copy;</p>
+            <p>Статистика Netflix Movies and TV Shows</p>
         </footer>
     </div>
 
