@@ -1,8 +1,15 @@
-from flask import Flask
+# from flask import Flask
+#
+# app = Flask(__name__)
+#
+# if __name__ == '__main__':
+#     app.run(debug=True)
+#
+# from structures.views import index
 
-app = Flask(__name__)
+from config import app
+
+from structures.views import *
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-from structures.views import index

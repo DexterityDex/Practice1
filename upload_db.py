@@ -66,22 +66,22 @@ def upload_data_from_csv(path):
                 except ValueError:
                     print(f"Не удалось обработать год: {row['release_year']}")
 
-                    # Обработка длительности
-                    duration_minutes = None
-                    duration_seasons = None
+            # Обработка длительности
+            duration_minutes = None
+            duration_seasons = None
 
-                    if row['duration'] and row['duration'].strip():
-                        duration = row['duration'].strip()
-                        if 'min' in duration:
-                            try:
-                                duration_minutes = int(duration.replace('min', '').strip())
-                            except ValueError:
-                                print(f"Не удалось обработать длительность в минутах: {duration}")
-                        elif 'Season' in duration or 'Seasons' in duration:
-                            try:
-                                duration_seasons = int(duration.replace('Seasons', '').replace('Season', '').strip())
-                            except ValueError:
-                                print(f"Не удалось обработать количество сезонов: {duration}")
+            if row['duration'] and row['duration'].strip():
+                duration = row['duration'].strip()
+                if 'min' in duration:
+                    try:
+                        duration_minutes = int(duration.replace('min', '').strip())
+                    except ValueError:
+                        print(f"Не удалось обработать длительность в минутах: {duration}")
+                elif 'Season' in duration or 'Seasons' in duration:
+                    try:
+                        duration_seasons = int(duration.replace('Seasons', '').replace('Season', '').strip())
+                    except ValueError:
+                        print(f"Не удалось обработать количество сезонов: {duration}")
 
             # Добавление записи о контенте
             content = NetflixContent(
@@ -105,4 +105,5 @@ def upload_data_from_csv(path):
 
 
 # Загрузка данных в таблицы
-upload_data_from_csv("data/netflix_titles.csv")
+with app.app_context():
+    upload_data_from_csv("data/netflix_titles.csv")

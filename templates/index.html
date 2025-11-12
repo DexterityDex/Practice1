@@ -73,11 +73,11 @@
         </header>
 
         <main class="content">
-            {{ macros_table("10 новейших релизов", query1[0], query1[1]) }}
-            {{ macros_table("Топ-5 стран по количеству контента", query2[0], query2[1]) }}
-            {{ macros_table("Распределение контента по рейтингам", query3[0], query3[1]) }}
+            {{ macros_table("Сериалы за последний год", query1[0], query1[1]) }}
+            {{ macros_table("Страны-лидеры по количеству контента", query2[0], query2[1]) }}
+            {{ macros_table("1% самых длинных фильмов", query3[0], query3[1]) }}
             {{ macros_table("Количество контента по годам", query4[0], query4[1]) }}
-            {{ macros_table("Топ-5 режиссеров с наибольшим количеством контента", query5[0], query5[1]) }}
+            {{ macros_table("Средняя длительность фильмов по годам выпуска", query5[0], query5[1]) }}
 
             <div class="accordions-container">
                 {{ macros_accordion("Все типы контента", content_types) }}
